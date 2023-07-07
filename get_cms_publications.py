@@ -68,7 +68,7 @@ if __name__ == '__main__':
     print(f'Saved to {cms_paper_filename}')
   
   # Find if I am an author
-  # author_paper_dict[an] = {number:, title:, url:, ref:}
+  # author_paper_dict[an] = {number:, title:, url:, ref:, detail_url:, number_authors:, publish_date:,}
   author_paper_dict = {}
   # Load existing json data
   if os.path.isfile(author_paper_filename):
@@ -94,7 +94,7 @@ if __name__ == '__main__':
       resp = requests.get(url, cookies=cookiejar)
       soup = bs4.BeautifulSoup(resp.content.decode('UTF-8'), 'html.parser')
       is_author = False
-      print(url)
+      #print(url)
       if paper_an == "CMS-00-002": is_author = is_author_for_CMS_00_002
       elif paper_an == "HIG-12-028": is_author = is_author_for_HIG_12_028
       elif paper_an == "CFT-09-025": is_author = is_author_for_CFT_09_025
