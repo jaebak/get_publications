@@ -88,6 +88,9 @@ if __name__ == '__main__':
     for paper_an in cms_paper_dict:
       if paper_an in author_paper_dict: continue # Already searched for this an
       if paper_an in non_author_paper_dict: continue # Already searched for this an
+      if paper_an == "EXO-19-009": continue # Skip this paper because it's difficult to process. TODO: Fix this
+      if paper_an == "B2G-21-004": continue # Skip this paper because it's difficult to process. TODO: Fix this
+      if paper_an == "HIN-21-009": continue # Skip this paper because it's difficult to process. TODO: Fix this
       paper_number = cms_paper_dict[paper_an]['number']
       print(f'[{paper_number}] Checking for authorship of {paper_an}')
       url = f'https://cms.cern.ch/iCMS/analysisadmin/authorinfo?ancode={paper_an}'
@@ -123,25 +126,45 @@ if __name__ == '__main__':
       # Bug fix for detail_url
       if cds_url == 'https://cds.cern.ch/record/2777215':
         cds_url = 'http://cds.cern.ch/record/2777347'
+      print(f'Trying to get cds_url: {cds_url}')
       resp_cds = requests.get(cds_url)
       number_authors = int(re.findall(r'\d+',re.findall("Show all.*$",resp_cds.content.decode('UTF-8'),re.MULTILINE)[0])[0])
       author_paper_dict[paper_an]['number_authors'] = number_authors
       # Get publication date from inspire
-      #print(inspire_url)
-      publish_date = ''
-      for iTrial in range(10):
-        try:
-          session = requests_html.HTMLSession()
-          resp_inspire = session.get(inspire_url)
-          resp_inspire.html.render()
-          #print(f'html: {resp_inspire.html.text}')
-          publish_date = re.findall(r'Published:\ .*$', resp_inspire.html.text, re.MULTILINE)[0].strip('Published:').strip()
-          break
-        except:
-          print(f'Trying again to get publication date from {inspire_url}')
-      if publish_date == '': 
-        print(f'Error in getting publish date in {inspire_url}')
-        break
+      if paper_an == "TOP-21-005": publish_date = 'Sep 10, 2023' # Bug in inspire
+      if paper_an == "HIN-20-003": publish_date = 'Sep 10, 2023' # Bug in inspire
+      if paper_an == "B2G-20-009": publish_date = 'Sep 10, 2023' # Bug in inspire
+      if paper_an == "TOP-21-003": publish_date = 'Sep 30, 2023' # Bug in inspire
+      if paper_an == "TOP-22-001": publish_date = 'Jun 27, 2024' # Bug in inspire
+      if paper_an == "TOP-22-003": publish_date = 'Jun 13, 2024' # Bug in inspire
+      if paper_an == "EXO-21-018": publish_date = 'Jul 24, 2024' # Bug in cds
+      else:
+        print(inspire_url)
+        inspire_index = inspire_url.split('/')[-1]
+        inspire_api_url = f'https://inspirehep.net/api/literature/{inspire_index}'
+        print(inspire_api_url)
+        resp_inspire = requests.get(inspire_api_url)
+        #print(resp_inspire.json())
+        publish_date_raw = resp_inspire.json()['metadata']['imprints'][0]['date']
+        publish_date = datetime.datetime.strptime(publish_date_raw,'%Y-%m-%d').strftime('%b %d, %Y')
+
+      # Javascript didn't parse... Use above method
+      #publish_date = ''
+      #for iTrial in range(10):
+      #  try:
+      #    session = requests_html.HTMLSession()
+      #    resp_inspire = session.get(inspire_url)
+      #    resp_inspire.html.render()
+      #    #print(f'html: {resp_inspire.html.html}')
+      #    publish_date = re.findall(r'Published:\ .*$', resp_inspire.html.text, re.MULTILINE)[0].strip('Published:').strip()
+      #    session.close()
+      #    break
+      #  except:
+      #    print(f'Trying again to get publication date from {inspire_url}')
+      #if publish_date == '': 
+      #  print(f'Error in getting publish date in {inspire_url}')
+      #  break
+
       author_paper_dict[paper_an]['publish_date'] = publish_date
       print(f'Added {paper_an} {author_paper_dict[paper_an]}')
       # Write to json. In loop incase something fails.
@@ -162,5 +185,6 @@ if __name__ == '__main__':
     paper_number_authors = author_paper_dict[paper_an]['number_authors']
     paper_date = author_paper_dict[paper_an]['publish_date']
     paper_date_kor = datetime.datetime.strptime(paper_date, '%b %d, %Y').strftime('%Y/%m/%d')
-    print(f'{paper_number:03} {paper_date_kor} {paper_ref} {paper_title} 김재박외 {paper_number_authors}명')
+    #print(f'{paper_number:03} {paper_date_kor} {paper_ref} {paper_title} 김재박외 {paper_number_authors}명')
+    print(f'{paper_number:03} {paper_date_kor} {paper_ref} {paper_title}')
     paper_number += 1

@@ -9,3 +9,6 @@ For the below papers, please check if you are the author yourself, and change th
 - https://cms-results.web.cern.ch/cms-results/public-results/publications/HIG-12-028/index.html
 - https://cms-results.web.cern.ch/cms-results/public-results/publications/CFT-09-025/index.html
 - https://cms-results.web.cern.ch/cms-results/public-results/publications/CMS-00-001/index.html
+
+In the case request hangs for getting cds url need to do below,
+System Preferences -> Network -> Wi-Fi -> Advanced -> TCP/IP -> Configure IPv6 -> Link-local only
